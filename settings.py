@@ -1,5 +1,6 @@
 import os
 
+import peewee
 from peewee import *
 from dotenv import load_dotenv
 from playhouse.shortcuts import ReconnectMixin
@@ -16,7 +17,14 @@ DATABASE_PORT = int(os.getenv("DATABASE_PORT", 3306))
 
 
 class ReconnectMySQLDatabase(ReconnectMixin, MySQLDatabase):
-    pass
+    def reconnect_if_lost(self):
+        try:
+            # Essayer d'exécuter une requête simple pour vérifier la connexion
+            self.execute_sql("SELECT 1")
+        except peewee.OperationalError:
+            if not self.is_closed():
+                self.close()
+            self.connect()
 
 
 db = ReconnectMySQLDatabase(DATABASE_NAME, user=DATABASE_USER, password=DATABASE_PASSWORD,

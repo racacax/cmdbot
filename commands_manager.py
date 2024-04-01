@@ -36,6 +36,7 @@ def exception_decorator(ephemeral=False):
             try:
                 message = await ctx.respond(LOADING_STR, ephemeral=ephemeral)
                 ctx.current_interaction = message
+                db.reconnect_if_lost()
                 with db.atomic():
                     return await func(*args, **kwargs)
             except Exception as e:
