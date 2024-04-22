@@ -1,3 +1,4 @@
+import asyncio
 from abc import ABC
 
 import discord
@@ -14,6 +15,18 @@ class CMDBot(discord.Bot, ABC):
 
         await self.change_presence(status=discord.Status.do_not_disturb, activity=activity)
         print(f'We have logged in as {self.user}')
+
+        async def keep_alive():
+            while True:
+                try:
+                    print("keep alive sql connection")
+                    print(Command.get_or_none(id=0))
+                except Exception as e2:
+                    print(e2)
+                await asyncio.sleep(3600)
+
+        loop = asyncio.get_event_loop()
+        task = loop.create_task(keep_alive())
 
     async def on_guild_join(self, guild: discord.Guild):
         pass
